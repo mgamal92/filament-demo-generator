@@ -2,8 +2,7 @@
 
 namespace Mgamal92\FilamentDemoGenerator\Actions;
 
-use Filament\Actions\Action;
-use Illuminate\Support\Str;
+use Filament\Tables\Actions\Action;
 use Faker\Factory as Faker;
 
 class GenerateDemoDataAction extends Action
