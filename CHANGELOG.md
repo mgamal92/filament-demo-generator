@@ -3,6 +3,21 @@
 All notable changes to this project will be documented in this file.
 
 ---
+
+## [1.3.0] - 2025-07-13
+
+### Added
+- 🧠 Smart delete: One button to generate or delete demo data (based on state)
+- 💾 Caching of generated record IDs for tracking
+- 🧨 Event: `DemoDataGenerated` is fired after generation
+- 🧩 Support for `enum` columns (auto-pick random enum value)
+- ✅ Confirmation modal for delete action
+- 🎯 Dynamic label, color, and form visibility based on state
+
+### Changed
+- Refactored action logic to handle both generate and delete in one button
+
+---
 ## [v1.2.0] – 2025-07-13
 
 This release introduces advanced field intelligence for generating more realistic demo data.
