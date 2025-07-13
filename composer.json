@@ -1,0 +1,29 @@
+{
+    "name": "mgamal92/filament-demo-generator",
+    "description": "Generate demo data for any Filament resource",
+    "type": "library",
+    "license": "MIT",
+    "autoload": {
+        "psr-4": {
+            "Mgamal92\\FilamentDemoGenerator\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Mgamal92\\FilamentDemoGenerator\\FilamentDemoGeneratorServiceProvider"
+            ]
+        }
+    },
+    "authors": [
+        {
+            "name": "Mohamed Gamal",
+            "email": "mg.dev1992@icloud.com"
+        }
+    ],
+    "require": {
+        "php": "^8.1",
+        "filament/filament": "^3.0"
+    },
+    "minimum-stability": "stable"
+}
