@@ -8,6 +8,7 @@ use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Faker\Factory as Faker;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Mgamal92\FilamentDemoGenerator\Support\DemoDataTracker;
 
@@ -87,8 +88,9 @@ class GenerateDemoDataAction extends Action
                             continue;
                         }
 
-                        $type = Schema::getColumnType($record->getTable(), $field);
-                        $record->$field = self::generateFakeValue($field, $type, $faker);
+                        $table = $record->getTable();
+                        $type = Schema::getColumnType($table, $field);
+                        $record->$field = self::generateFakeValue($field, $type, $faker, $table);
                     }
 
                     $record->save();
@@ -125,13 +127,22 @@ class GenerateDemoDataAction extends Action
         return $model->getKey();
     }
 
-    protected static function generateFakeValue(string $field, string $type, Generator $faker): mixed
+    protected static function generateFakeValue(string $field, string $type, Generator $faker, ?string $table = null): mixed
     {
         $field = strtolower($field);
 
         foreach (self::customGenerators() as $keyword => $generator) {
             if (str_contains($field, $keyword)) {
                 return $generator($faker);
+            }
+        }
+
+        if ($type === 'enum') {
+            if ($table) {
+                $enumValues = self::getEnumValues($table, $field);
+                if (!empty($enumValues)) {
+                    return $faker->randomElement($enumValues);
+                }
             }
         }
 
@@ -185,4 +196,24 @@ class GenerateDemoDataAction extends Action
     {
         return config('filament-demo-generator.column_types', []);
     }
+
+    protected static function getEnumValues(string $table, string $column): array
+    {
+        $type = DB::selectOne("SHOW COLUMNS FROM `$table` WHERE Field = ?", [$column]);
+
+        if (!$type || !str_starts_with($type->Type, 'enum(')) {
+            return [];
+        }
+
+        preg_match('/^enum\((.*)\)$/', $type->Type, $matches);
+
+        if (!isset($matches[1])) {
+            return [];
+        }
+
+        return array_map(function ($value) {
+            return trim($value, " '");
+        }, explode(',', $matches[1]));
+    }
+
 }
