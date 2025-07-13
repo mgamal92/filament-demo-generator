@@ -6,7 +6,7 @@ All notable changes to this project will be documented in this file.
 
 ## [v1.0.0] - 2025-07-13
 
-🎉 First stable release of `filament-demo-generator`.
+First stable release of `filament-demo-generator`.
 
 ### Features
 
