@@ -10,6 +10,7 @@ use Faker\Factory as Faker;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
+use Mgamal92\FilamentDemoGenerator\Events\DemoDataGenerated;
 use Mgamal92\FilamentDemoGenerator\Support\DemoDataTracker;
 
 class GenerateDemoDataAction extends Action
@@ -54,6 +55,7 @@ class GenerateDemoDataAction extends Action
                 return DemoDataTracker::has($livewire->getModel());
             })
             ->action(function (array $data, $livewire) {
+                $generatedIds = [];
                 $model = $livewire->getModel();
                 $faker = Faker::create();
                 $relations = self::getBelongsToRelations(new $model());
@@ -95,7 +97,10 @@ class GenerateDemoDataAction extends Action
 
                     $record->save();
                     DemoDataTracker::add($model, $record->getKey());
+                    $generatedIds[] = $record->getKey();
                 }
+
+                event(new DemoDataGenerated($model, $count, $generatedIds ?? []));
 
                 Notification::make()
                     ->title("{$count} records generated.")
