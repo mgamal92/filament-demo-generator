@@ -9,26 +9,60 @@ use Filament\Tables\Actions\Action;
 use Faker\Factory as Faker;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Schema;
+use Mgamal92\FilamentDemoGenerator\Support\DemoDataTracker;
 
 class GenerateDemoDataAction extends Action
 {
     public static function make(string|null $name = 'generate-demo-data'): static
     {
         return parent::make($name)
-            ->label('Generate Demo Data')
-            ->modalHeading('Generate Demo Records')
-            ->form([
-                TextInput::make('count')
-                    ->label('How many records?')
-                    ->numeric()
-                    ->default(10)
-                    ->required(),
-            ])
+            ->label(function ($livewire) {
+                $model = $livewire->getModel();
+                return DemoDataTracker::has($model)
+                    ? 'Delete Demo Data'
+                    : 'Generate Demo Data';
+            })
+            ->color(function ($livewire) {
+                return DemoDataTracker::has($livewire->getModel())
+                    ? 'danger'
+                    : 'success';
+            })
+            ->modalHeading(function ($livewire) {
+                $model = $livewire->getModel();
+
+                return DemoDataTracker::has($model)
+                    ? 'Confirm Deletion of Demo Data'
+                    : 'Generate Demo Records';
+            })
+            ->form(function ($livewire) {
+                $model = $livewire->getModel();
+
+                if (DemoDataTracker::has($model)) {
+                    return [];
+                }
+
+                return [
+                    TextInput::make('count')
+                        ->label('How many records?')
+                        ->numeric()
+                        ->default(10)
+                        ->required(),
+                ];
+            })
+            ->requiresConfirmation(function ($livewire) {
+                return DemoDataTracker::has($livewire->getModel());
+            })
             ->action(function (array $data, $livewire) {
                 $model = $livewire->getModel();
-                $count = $data['count'] ?? 10;
                 $faker = Faker::create();
                 $relations = self::getBelongsToRelations(new $model());
+
+                if (DemoDataTracker::has($model)) {
+                    DeleteDemoDataAction::handle($model);
+                    return;
+                }
+
+                $count = $data['count'] ?? 10;
 
                 for ($i = 0; $i < $count; $i++) {
                     $record = new $model();
@@ -58,6 +92,7 @@ class GenerateDemoDataAction extends Action
                     }
 
                     $record->save();
+                    DemoDataTracker::add($model, $record->getKey());
                 }
 
                 Notification::make()
