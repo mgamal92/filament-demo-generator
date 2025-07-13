@@ -70,6 +70,5 @@ If you have suggestions for improving the plugin, want to support new field type
 
 ## License
 
-MIT License © [MG]
-
+MIT License
 ---
