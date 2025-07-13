@@ -5,7 +5,7 @@ Whether you're fixing a bug, adding a feature, or improving the documentation �
 
 ---
 
-## 🛠 Getting Started
+## Getting Started
 
 1. Fork the repository.
 2. Create a new branch: `git checkout -b feature/my-feature`
@@ -16,13 +16,13 @@ Whether you're fixing a bug, adding a feature, or improving the documentation �
 
 ---
 
-## 🧪 Testing
+## Testing
 
 If your contribution includes logic changes, please add or update appropriate test cases.
 
 ---
 
-## ✨ Code Style
+## Code Style
 
 - Follow PSR-12 coding standards.
 - Use descriptive variable and method names.
@@ -30,7 +30,7 @@ If your contribution includes logic changes, please add or update appropriate te
 
 ---
 
-## 🙌 Need Help?
+## Need Help?
 
 If you're not sure how to start or where to contribute, feel free to open an issue or discussion. We're happy to help.
 
