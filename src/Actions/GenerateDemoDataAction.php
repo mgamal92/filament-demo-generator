@@ -55,38 +55,44 @@ class GenerateDemoDataAction extends Action
     {
         $field = strtolower($field);
 
-        if (str_contains($field, 'email')) {
-            return $faker->unique()->safeEmail();
+        // 1. Field name match
+        foreach (self::customGenerators() as $keyword => $generator) {
+            if (str_contains($field, $keyword)) {
+                return $generator($faker);
+            }
         }
 
-        if (str_contains($field, 'name')) {
-            return $faker->name();
-        }
+        // 2. Fallback to field type
+        return self::typeGenerators()[$type]($faker) ?? $faker->word();
+    }
 
-        if (str_contains($field, 'title')) {
-            return $faker->sentence(3);
-        }
+    protected static function customGenerators(): array
+    {
+        return [
+            'email'       => fn($faker) => $faker->unique()->safeEmail(),
+            'name'        => fn($faker) => $faker->name(),
+            'title'       => fn($faker) => $faker->sentence(3),
+            'description' => fn($faker) => $faker->paragraph(),
+            'content'     => fn($faker) => $faker->paragraph(),
+            'phone'       => fn($faker) => $faker->phoneNumber(),
+            'image'       => fn($faker) => $faker->imageUrl(300, 300),
+            'avatar'      => fn($faker) => $faker->imageUrl(300, 300),
+        ];
+    }
 
-        if (str_contains($field, 'description') || str_contains($field, 'content')) {
-            return $faker->paragraph();
-        }
-
-        if (str_contains($field, 'phone')) {
-            return $faker->phoneNumber();
-        }
-
-        if (str_contains($field, 'image') || str_contains($field, 'avatar')) {
-            return $faker->imageUrl(300, 300);
-        }
-
-        return match ($type) {
-            'string', 'text'        => $faker->sentence(),
-            'integer', 'bigint'     => $faker->numberBetween(1, 1000),
-            'boolean'               => $faker->boolean(),
-            'date'                  => now()->addDays(rand(-1000, 1000))->format('Y-m-d'),
-            'datetime', 'timestamp' => now()->addSeconds(rand(-10000000, 10000000)),
-            'float', 'decimal'      => $faker->randomFloat(2, 0, 1000),
-            default                 => $faker->word(),
-        };
+    protected static function typeGenerators(): array
+    {
+        return [
+            'string'    => fn($faker) => $faker->sentence(),
+            'text'      => fn($faker) => $faker->paragraph(),
+            'integer'   => fn($faker) => $faker->numberBetween(1, 1000),
+            'bigint'    => fn($faker) => $faker->numberBetween(1, 1000),
+            'boolean'   => fn($faker) => $faker->boolean(),
+            'date'      => fn($faker) => now()->addDays(rand(-1000, 1000))->format('Y-m-d'),
+            'datetime'  => fn($faker) => now()->addSeconds(rand(-10000000, 10000000)),
+            'timestamp' => fn($faker) => now()->addSeconds(rand(-10000000, 10000000)),
+            'float'     => fn($faker) => $faker->randomFloat(2, 0, 1000),
+            'decimal'   => fn($faker) => $faker->randomFloat(2, 0, 1000),
+        ];
     }
 }
