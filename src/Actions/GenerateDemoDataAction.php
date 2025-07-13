@@ -2,9 +2,12 @@
 
 namespace Mgamal92\FilamentDemoGenerator\Actions;
 
+use Faker\Generator;
+use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
 use Filament\Tables\Actions\Action;
 use Faker\Factory as Faker;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Facades\Schema;
 
 class GenerateDemoDataAction extends Action
@@ -15,7 +18,7 @@ class GenerateDemoDataAction extends Action
             ->label('Generate Demo Data')
             ->modalHeading('Generate Demo Records')
             ->form([
-                \Filament\Forms\Components\TextInput::make('count')
+                TextInput::make('count')
                     ->label('How many records?')
                     ->numeric()
                     ->default(10)
@@ -25,20 +28,33 @@ class GenerateDemoDataAction extends Action
                 $model = $livewire->getModel();
                 $count = $data['count'] ?? 10;
                 $faker = Faker::create();
+                $relations = self::getBelongsToRelations(new $model());
 
                 for ($i = 0; $i < $count; $i++) {
                     $record = new $model();
 
                     foreach ($record->getFillable() as $field) {
-                        $table = $record->getTable();
                         if (in_array($field, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
                             continue;
                         }
 
-                        $type = Schema::getColumnType($table, $field);
+                        if (array_key_exists($field, $relations)) {
+                            $relatedModelClass = get_class($relations[$field]['relation']->getRelated());
+                            $relatedId = $relatedModelClass::inRandomOrder()->value(new $relatedModelClass()->getKeyName());
 
+                            if (!$relatedId) {
+                                $relatedId = self::generateRelatedModel($relatedModelClass, $faker);
+                                if (!$relatedId) {
+                                    continue;
+                                }
+                            }
+
+                            $record->$field = $relatedId;
+                            continue;
+                        }
+
+                        $type = Schema::getColumnType($record->getTable(), $field);
                         $record->$field = self::generateFakeValue($field, $type, $faker);
-
                     }
 
                     $record->save();
@@ -51,19 +67,78 @@ class GenerateDemoDataAction extends Action
             });
     }
 
-    protected static function generateFakeValue(string $field, string $type, \Faker\Generator $faker): mixed
+    protected static function generateRelatedModel(string $modelClass, \Faker\Generator $faker): ?int
+    {
+        $model = new $modelClass();
+        $table = $model->getTable();
+
+        foreach ($model->getFillable() as $field) {
+            if (in_array($field, ['id', 'created_at', 'updated_at', 'deleted_at'])) {
+                continue;
+            }
+
+            if (!Schema::hasColumn($table, $field)) {
+                continue;
+            }
+
+            $type = Schema::getColumnType($table, $field);
+            $model->$field = self::generateFakeValue($field, $type, $faker);
+        }
+
+        $model->save();
+
+        return $model->getKey();
+    }
+
+    protected static function generateFakeValue(string $field, string $type, Generator $faker): mixed
     {
         $field = strtolower($field);
 
-        // 1. Field name match
         foreach (self::customGenerators() as $keyword => $generator) {
             if (str_contains($field, $keyword)) {
                 return $generator($faker);
             }
         }
 
-        // 2. Fallback to field type
         return self::typeGenerators()[$type]($faker) ?? $faker->word();
+    }
+
+    protected static function getBelongsToRelations(object $model): array
+    {
+        $relations = [];
+
+        $class = get_class($model);
+        $methods = get_class_methods($class);
+
+        foreach ($methods as $method) {
+            if (str_starts_with($method, '__')) {
+                continue;
+            }
+
+            try {
+                $reflection = new \ReflectionMethod($class, $method);
+
+                if (
+                    $reflection->isPublic()
+                    && !$reflection->isStatic()
+                    && $reflection->getNumberOfParameters() === 0
+                    && $reflection->getDeclaringClass()->getName() === $class
+                ) {
+                    $return = $reflection->invoke($model);
+
+                    if ($return instanceof BelongsTo) {
+                        $relations[$return->getForeignKeyName()] = [
+                            'relation' => $return,
+                            'method' => $method,
+                        ];
+                    }
+                }
+            } catch (\Throwable $e) {
+                continue;
+            }
+        }
+
+        return $relations;
     }
 
     protected static function customGenerators(): array
