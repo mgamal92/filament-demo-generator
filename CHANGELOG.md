@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [v1.1.0] – 2025-07-13
+
+This release adds full support for automatically generating demo data for `BelongsTo` relationships.
+
+### Added
+- Detects `BelongsTo` relationships using model reflection.
+- Automatically fills foreign key fields with either:
+  - Existing related records, or
+  - New related records created dynamically.
+- Introduced `generateRelatedModel()` to create related records using `fillable` fields.
+
+### Improved
+- Unified fake data generation by reusing the existing `generateFakeValue()` method.
+- Works entirely with `fillable` attributes.
+- Safer method reflection and model scanning with error handling.
+
+### Breaking Changes
+- None
+
+---
+
 ## [v1.0.0] - 2025-07-13
 
 First stable release of `filament-demo-generator`.
