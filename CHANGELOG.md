@@ -3,6 +3,19 @@
 All notable changes to this project will be documented in this file.
 
 ---
+## [v1.2.0] – 2025-07-13
+
+This release introduces advanced field intelligence for generating more realistic demo data.
+
+### Added
+- Support for `field_keywords` to generate fake values based on field names.
+- Support for `column_types` to customize generation logic per database type.
+- Extended coverage of all known MySQL/Laravel column types in the config file.
+
+### Breaking Changes
+- None
+
+---
 
 ## [v1.1.0] – 2025-07-13
 
