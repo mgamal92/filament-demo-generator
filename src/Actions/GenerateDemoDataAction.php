@@ -40,7 +40,7 @@ class GenerateDemoDataAction extends Action
 
                         if (array_key_exists($field, $relations)) {
                             $relatedModelClass = get_class($relations[$field]['relation']->getRelated());
-                            $relatedId = $relatedModelClass::inRandomOrder()->value(new $relatedModelClass()->getKeyName());
+                            $relatedId = $relatedModelClass::inRandomOrder()->value((new $relatedModelClass())->getKeyName());
 
                             if (!$relatedId) {
                                 $relatedId = self::generateRelatedModel($relatedModelClass, $faker);
