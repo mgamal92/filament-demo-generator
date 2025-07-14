@@ -18,6 +18,21 @@ All notable changes to this project will be documented in this file.
 - Refactored action logic to handle both generate and delete in one button
 
 ---
+
+## [v1.3.1] - 2025-07-13
+
+### ♻️ Refactoring & Internal Improvements
+
+- Refactored `GenerateDemoDataAction` into smaller, focused classes:
+  - `FakeValueGenerator`: Handles all fake data generation logic.
+  - `ModelGenerator`: Handles on-the-fly related model creation.
+  - `RelationResolver`: Extracts `BelongsTo` relationships.
+- Removed redundant and unused internal methods.
+- Improved code readability, structure, and maintainability.
+- No breaking changes — functionality remains the same.
+
+---
+
 ## [v1.2.0] – 2025-07-13
 
 This release introduces advanced field intelligence for generating more realistic demo data.
