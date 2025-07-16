@@ -42,7 +42,6 @@ return [
         'quantity'     => fn($faker) => $faker->numberBetween(1, 100),
         'total'        => fn($faker) => $faker->randomFloat(2, 50, 10000),
 
-        'status'       => fn($faker) => $faker->randomElement(['active', 'inactive', 'pending']),
         'type'         => fn($faker) => $faker->randomElement(['basic', 'premium', 'enterprise']),
         'level'        => fn($faker) => $faker->randomElement(['beginner', 'intermediate', 'advanced']),
         'gender'       => fn($faker) => $faker->randomElement(['male', 'female']),
@@ -116,5 +115,9 @@ return [
         'multipolygon' => fn($faker) => 'MULTIPOLYGON(((30 20, 45 40, 10 40, 30 20)))',
         'geometry'   => fn($faker) => 'POINT(0 0)',
         'geometrycollection' => fn($faker) => 'GEOMETRYCOLLECTION(POINT(4 6), LINESTRING(4 6,7 10))',
+    ],
+
+    'image_fields' => [
+        'image', 'avatar', 'logo', 'photo', 'thumbnail',
     ],
 ];

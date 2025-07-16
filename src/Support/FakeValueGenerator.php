@@ -11,14 +11,19 @@ class FakeValueGenerator
     {
         $field = strtolower($field);
 
-        // 1. Check keyword-based generators
+        // Check if it's an image field
+        if (self::isImageField($field)) {
+            return "https://picsum.photos/seed/{$field}-{$faker->unique()->numberBetween(1, 1000)}/500/500";
+        }
+
+        // Check keyword-based generators
         foreach (self::customGenerators() as $keyword => $generator) {
             if (str_contains($field, $keyword)) {
                 return $generator($faker);
             }
         }
 
-        // 2. Handle ENUM
+        // Handle ENUM
         if ($type === 'enum' && $table) {
             $enumValues = self::getEnumValues($table, $field);
             if (!empty($enumValues)) {
@@ -26,7 +31,7 @@ class FakeValueGenerator
             }
         }
 
-        // 3. Fallback to type-based generators
+        // Fallback to type-based generators
         return self::typeGenerators()[$type]($faker) ?? $faker->word();
     }
 
@@ -53,5 +58,18 @@ class FakeValueGenerator
     protected static function typeGenerators(): array
     {
         return config('filament-demo-generator.column_types', []);
+    }
+
+    protected static function isImageField(string $attribute): bool
+    {
+        $imageKeywords = config('filament-demo-generator.image_fields', []);
+
+        foreach ($imageKeywords as $keyword) {
+            if (str_contains($attribute, strtolower($keyword))) {
+                return true;
+            }
+        }
+
+        return false;
     }
 }
