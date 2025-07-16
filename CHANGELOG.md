@@ -4,6 +4,40 @@ All notable changes to this project will be documented in this file.
 
 ---
 
+## [v1.4.0] – 2025-07-15
+
+### Added – Image Field Support
+
+- Image fields are now supported when generating demo data.
+- Uses real image URLs from **Picsum Photos**
+  ```text
+  https://picsum.photos/seed/{field}-{uuid}/600/600
+  ```
+- Image field detection is based on a configurable list of keywords:
+  ```php
+  'image_fields' => ['image', 'avatar', 'logo', 'photo', 'thumbnail']
+  ```
+- New method `isImageField()` handles detection based on field name.
+- Ensures unique, realistic images for every generated field.
+
+### Configuration
+
+If you haven't published the config file yet, do so with:
+
+```bash
+php artisan vendor:publish --tag=filament-demo-generator-config
+```
+
+Then update the following section to customize image field handling:
+
+```php
+'image_fields' => [
+    'image', 'avatar', 'logo', 'photo', 'thumbnail',
+],
+```
+
+---
+
 ## [v1.3.1] - 2025-07-14
 
 ### Refactoring & Internal Improvements
